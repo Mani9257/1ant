@@ -1,26 +1,419 @@
-<project name="test" default="run">    
-	
-	<target name="clean">
-       <delete dir="build" /> <!-- clean -->
-    </target>
+<project name="FunkFMS_GF" basedir="../" default="build_all"> 
 
-    <target name="compile" depends="clean">
-        <echo> Java Compile task </echo>
-       <mkdir dir="build/classes" /> 
-         <javac srcdir="src" destdir="build/classes" /> <!-- java compile -->
-    </target>
-   
-   <target name="package" depends="compile">
-       <echo> Java package task </echo>
-       <jar basedir="build/classes" destfile="build/jar/Helloworld.jar"> <!-- package -->
-          <manifest>
-             <attribute name="Main-Class" value="Hello2"/>
-          </manifest>
-       </jar>
-   </target>
-   <target name="run" depends="package"> 
-      <echo> running jar file task </echo>
-      <java jar="build/jar/Helloworld.jar" fork='true'/> <!-- run -->
-   </target>
+ 
 
-</project>
+<property name="dir.javac" value="c:/Data/workspace/general_jdk_1.8/FISweb_GF4/local_env/jdk1.8.0_65_x64/bin/javac" /> 
+
+<property name="dir.gf" value="local_env/glassfish4.1.1/glassfish" /> 
+
+<property name="dir.template" value="server" /> 
+
+<property name="war.file.name" value="funkfms.war" /> 
+
+<property name="war.file.path" value="build/out/war" /> 
+
+<property name="tar.file.name" value="funkfms.tar" /> 
+
+<property name="tar.file.path" value="build/out/tar" /> 
+
+ 
+
+<path id="app-classpath"> 
+
+<fileset dir="build/lib"> 
+
+<include name="*.jar" /> 
+
+</fileset> 
+
+</path> 
+
+ 
+
+<path id="gf-classpath"> 
+
+<fileset dir="${dir.gf}/lib"> 
+
+<include name="javaee.jar" /> 
+
+</fileset> 
+
+</path> 
+
+ 
+
+<target name="build_all"> 
+
+<antcall target="war" /> 
+
+<antcall target="tar" /> 
+
+<antcall target="copy_local" /> 
+
+</target> 
+
+ 
+
+<target name="war"> 
+
+<echo message="Building ${war.file.path}/${war.file.name}" /> 
+
+<antcall target="build"> 
+
+</antcall> 
+
+<delete file="${war.file.path}/${war.file.name}" /> 
+
+<mkdir dir="${war.file.path}" /> 
+
+<war destfile="${war.file.path}/${war.file.name}" webxml="webApp/WEB-INF/web.xml"> 
+
+<fileset dir="webApp"> 
+
+</fileset> 
+
+</war> 
+
+</target> 
+
+ 
+
+<target name="build" unless="${build.done}"> 
+
+<echo>${build.done}</echo> 
+
+<antcall target="clean"> 
+
+</antcall> 
+
+<antcall target="init"> 
+
+</antcall> 
+
+<antcall target="compile"> 
+
+</antcall> 
+
+<property name="build.done" value="true" /> 
+
+<echo>${build.done}</echo> 
+
+</target> 
+
+ 
+
+<target name="clean"> 
+
+<delete dir="webApp/WEB-INF/classes" /> 
+
+<delete dir="build/out" /> 
+
+<delete dir="webApp/WEB-INF/lib" /> 
+
+</target> 
+
+ 
+
+<target name="init"> 
+
+<copy todir="webApp/WEB-INF/lib"> 
+
+<fileset dir="build/lib"> 
+
+<exclude name="jaaf-core-1.03.00.jar"/> 
+
+</fileset> 
+
+</copy> 
+
+</target> 
+
+ 
+
+<target name="compile"> 
+
+<mkdir dir="webApp/WEB-INF/classes" /> 
+
+<javac srcdir="src" destdir="webApp/WEB-INF/classes" encoding="utf-8" executable="${dir.javac}" fork="true" taskname="javac1.8" debug="true" debuglevel="lines,vars,source"> 
+
+<classpath refid="app-classpath" /> 
+
+<classpath refid="gf-classpath" /> 
+
+</javac> 
+
+<copy todir="webApp/WEB-INF/classes"> 
+
+<fileset dir="src" excludes="**/*.java" /> 
+
+</copy> 
+
+</target> 
+
+ 
+
+<target name="tar"> 
+
+<mkdir dir="${tar.file.path}" /> 
+
+ 
+
+<tar destfile="${tar.file.path}/${tar.file.name}"> 
+
+<tarfileset dir="server/BMW/config" prefix="config" /> 
+
+<tarfileset dir="server/BMW/project-synced" prefix="project-synced" /> 
+
+<tarfileset dir="${war.file.path}" prefix="config"> 
+
+<include name="${war.file.name}" /> 
+
+</tarfileset> 
+
+</tar> 
+
+</target> 
+
+ 
+
+<target name="copy_local"> 
+
+<delete file="local_env/domains/myDomain/autodeploy/${war.file.name}" /> 
+
+<delete> 
+
+<fileset dir="local_env/domains/myDomain/project-synced" /> 
+
+</delete> 
+
+<copy todir="local_env/domains/myDomain/autodeploy"> 
+
+<fileset dir="${war.file.path}"> 
+
+<include name="${war.file.name}" /> 
+
+</fileset> 
+
+</copy> 
+
+<copy todir="local_env/domains/myDomain/project-synced"> 
+
+<fileset dir="server/local/project-synced"> 
+
+</fileset> 
+
+</copy> 
+
+</target> 
+
+ 
+
+</project><project name="FunkFMS_GF" basedir="../" default="build_all"> 
+
+ 
+
+<property name="dir.javac" value="c:/Data/workspace/general_jdk_1.8/FISweb_GF4/local_env/jdk1.8.0_65_x64/bin/javac" /> 
+
+<property name="dir.gf" value="local_env/glassfish4.1.1/glassfish" /> 
+
+<property name="dir.template" value="server" /> 
+
+<property name="war.file.name" value="funkfms.war" /> 
+
+<property name="war.file.path" value="build/out/war" /> 
+
+<property name="tar.file.name" value="funkfms.tar" /> 
+
+<property name="tar.file.path" value="build/out/tar" /> 
+
+ 
+
+<path id="app-classpath"> 
+
+<fileset dir="build/lib"> 
+
+<include name="*.jar" /> 
+
+</fileset> 
+
+</path> 
+
+ 
+
+<path id="gf-classpath"> 
+
+<fileset dir="${dir.gf}/lib"> 
+
+<include name="javaee.jar" /> 
+
+</fileset> 
+
+</path> 
+
+ 
+
+<target name="build_all"> 
+
+<antcall target="war" /> 
+
+<antcall target="tar" /> 
+
+<antcall target="copy_local" /> 
+
+</target> 
+
+ 
+
+<target name="war"> 
+
+<echo message="Building ${war.file.path}/${war.file.name}" /> 
+
+<antcall target="build"> 
+
+</antcall> 
+
+<delete file="${war.file.path}/${war.file.name}" /> 
+
+<mkdir dir="${war.file.path}" /> 
+
+<war destfile="${war.file.path}/${war.file.name}" webxml="webApp/WEB-INF/web.xml"> 
+
+<fileset dir="webApp"> 
+
+</fileset> 
+
+</war> 
+
+</target> 
+
+ 
+
+<target name="build" unless="${build.done}"> 
+
+<echo>${build.done}</echo> 
+
+<antcall target="clean"> 
+
+</antcall> 
+
+<antcall target="init"> 
+
+</antcall> 
+
+<antcall target="compile"> 
+
+</antcall> 
+
+<property name="build.done" value="true" /> 
+
+<echo>${build.done}</echo> 
+
+</target> 
+
+ 
+
+<target name="clean"> 
+
+<delete dir="webApp/WEB-INF/classes" /> 
+
+<delete dir="build/out" /> 
+
+<delete dir="webApp/WEB-INF/lib" /> 
+
+</target> 
+
+ 
+
+<target name="init"> 
+
+<copy todir="webApp/WEB-INF/lib"> 
+
+<fileset dir="build/lib"> 
+
+<exclude name="jaaf-core-1.03.00.jar"/> 
+
+</fileset> 
+
+</copy> 
+
+</target> 
+
+ 
+
+<target name="compile"> 
+
+<mkdir dir="webApp/WEB-INF/classes" /> 
+
+<javac srcdir="src" destdir="webApp/WEB-INF/classes" encoding="utf-8" executable="${dir.javac}" fork="true" taskname="javac1.8" debug="true" debuglevel="lines,vars,source"> 
+
+<classpath refid="app-classpath" /> 
+
+<classpath refid="gf-classpath" /> 
+
+</javac> 
+
+<copy todir="webApp/WEB-INF/classes"> 
+
+<fileset dir="src" excludes="**/*.java" /> 
+
+</copy> 
+
+</target> 
+
+ 
+
+<target name="tar"> 
+
+<mkdir dir="${tar.file.path}" /> 
+
+ 
+
+<tar destfile="${tar.file.path}/${tar.file.name}"> 
+
+<tarfileset dir="server/BMW/config" prefix="config" /> 
+
+<tarfileset dir="server/BMW/project-synced" prefix="project-synced" /> 
+
+<tarfileset dir="${war.file.path}" prefix="config"> 
+
+<include name="${war.file.name}" /> 
+
+</tarfileset> 
+
+</tar> 
+
+</target> 
+
+ 
+
+<target name="copy_local"> 
+
+<delete file="local_env/domains/myDomain/autodeploy/${war.file.name}" /> 
+
+<delete> 
+
+<fileset dir="local_env/domains/myDomain/project-synced" /> 
+
+</delete> 
+
+<copy todir="local_env/domains/myDomain/autodeploy"> 
+
+<fileset dir="${war.file.path}"> 
+
+<include name="${war.file.name}" /> 
+
+</fileset> 
+
+</copy> 
+
+<copy todir="local_env/domains/myDomain/project-synced"> 
+
+<fileset dir="server/local/project-synced"> 
+
+</fileset> 
+
+</copy> 
+
+</target> 
+
+ </project> 
