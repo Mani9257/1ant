@@ -20,7 +20,7 @@
    </target>
    <target name="run" depends="package"> 
       <echo> running jar file task </echo>
-      <java jar="build/jar/Helloworld.jar" fork='true'/> <!-- run -->
+      <java jar="build/jar/Helloworld.jar" fork='true'/> <!-- run1 -->
    </target>
 
 </project>
